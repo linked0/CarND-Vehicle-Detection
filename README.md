@@ -14,10 +14,10 @@ The goals / steps of this project are the following:
 * Estimate a bounding box for vehicles detected.
 
 [//]: # (Image References)
-[image1]: ./examples/car_not_car.png
-[image2]: ./examples/HOG_example.jpg
-[image3]: ./examples/sliding_windows.jpg
-[image4]: ./examples/sliding_window.jpg
+[hog_image]: ./output_images/hog_car_notcar.png
+[hls_image]: ./output_images/HLS_8_8_2_ALL.png
+[luv_image]: ./output_images/LUV_8_8_2_ALL.png
+[yuv_image]: ./output_images/YUV_8_8_2_ALL.png
 [image5]: ./examples/bboxes_and_heat.png
 [image6]: ./examples/labels_map.png
 [image7]: ./examples/output_bboxes.png
@@ -27,36 +27,68 @@ The goals / steps of this project are the following:
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
-
 ### Histogram of Oriented Gradients (HOG)
 
 #### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
 
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the third code cell of the IPython notebook
 
-I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
-
-![alt text][image1]
+I started by reading in all the `vehicle` and `non-vehicle` images and used 500 sample files each.
 
 I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
 
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
+Here is an example using HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
 
-
-![alt text][image2]
+![alt text][hog_image]
 
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+I tried various combinations of parameters using scikit-learn SVC classifier and the results are as follows.
+
+|Color Space|Orientation|Pixel per Cell|Cell per Block|HOG Channel|Test Accuracy(0~1.0)|
+|:--:|:--:|:--:|:--:|:--:|:--:|
+|LUV|8|8|2|0|0.97|
+|LUV|8|8|2|1|0.975|
+|LUV|8|8|2|2|0.975|
+|LUV|8|8|2|ALL|0.97|
+|LUV|9|8|2|0|0.965|
+|LUV|9|8|2|1|0.945|
+|LUV|9|8|2|2|**0.98**|
+|LUV|9|8|2|ALL|0.975|
+|HLS|8|8|2|0|0.975|
+|HLS|8|8|2|1|0.965|
+|HLS|8|8|2|2|0.97|
+|HLS|8|8|2|ALL|**0.985**|
+|HLS|9|8|2|ALL|0.965|
+|YUV|8|8|2|ALL|**0.99**|
+|YUV|8|8|3|ALL|0.985|
+|YUV|9|16|2|ALL|0.975|
+|YUV|9|8|2|ALL|0.985|
+|YCrCb|8|8|2|ALL|0.975|
+|HSV|8|8|2|ALL|0.965|
+|RGB|8|8|2|ALL|0.955|
+
+<br>
+Running the lecture's search_classify.py with the better 3 combinations, the output images are as follows.
+
+|Parameters|Ouput|
+|:--:|:--:|
+|Color Space:LUV<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:ALL|![alt text][luv_image]
+
+|Parameters|Ouput|
+|:--:|:--:|
+|Color Space:YUV<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:ALL|![alt text][yuv_image]
+
+|Parameters|Ouput|
+|:--:|:--:|
+|Color Space:HLS<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:ALL|![alt text][HLS_image]
+
+Final parameters for feature extraction are as follows.<br>
+Color Space:HLS<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:AL
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-I trained a linear SVM using...
+For finding best parameters, I trained a linear SVM with the default classifier parameters and 
 
 ### Sliding Window Search
 
