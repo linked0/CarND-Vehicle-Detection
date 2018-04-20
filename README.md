@@ -18,7 +18,12 @@ The goals / steps of this project are the following:
 [hls_image]: ./output_images/HLS_8_8_2_ALL.png
 [luv_image]: ./output_images/LUV_8_8_2_ALL.png
 [yuv_image]: ./output_images/YUV_8_8_2_ALL.png
-[image5]: ./examples/bboxes_and_heat.png
+[sliding_1]: ./output_images/sliding_1.4_1.png
+[sliding_2]: ./output_images/sliding_1.4_2.png
+[sliding_3]: ./output_images/sliding_1.4_3.png
+[sliding_4]: ./output_images/sliding_1.4_4.png
+[sliding_5]: ./output_images/sliding_1.4_5.png
+[sliding_6]: ./output_images/sliding_1.4_6.png
 [image6]: ./examples/labels_map.png
 [image7]: ./examples/output_bboxes.png
 [video1]: ./project_video.mp4
@@ -84,26 +89,47 @@ Running the lecture's search_classify.py with the better 3 combinations, the out
 |Color Space:HLS<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:ALL|![alt text][HLS_image]
 
 Final parameters for feature extraction are as follows.<br>
-Color Space:HLS<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:AL
+Color Space:LUV<br>Orientation:8<br>Pixel per Cell:8<br>Cell per Block:2<br> HOG Channel:ALL
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-For finding best parameters, I trained a linear SVM with the default classifier parameters and 
+With final parameters found in last section, I started to search best SVM classifier using Scikit-learn GridSearchCV. I started to optimizing the Gamma and C parameters.
+
+When tuning SVM, I can only tune the C parameter with a linear kernal. For a non-linear kernal, I can tune C and gamma.
+
+I started to optimizing the parameters with the following example from Udacity's lecture.
+```python
+parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+svr = svm.SVC()
+clf = grid_search.GridSearchCV(svr, parameters)
+clf.fit(iris.data, iris.target)
+```
+
+I compared three classifier from the Scikit-learn, linear SVM, RBF kernal SVM, and LinearSVC. I got the best result as follows.
+
+Best classifier: LinearSVC
+Best "C" parameter: 0.001
+Best score: 0.936
+
+The code for this step is contained in the fifth, sixth, and seventh code cells of the IPython notebook.
 
 ### Sliding Window Search
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+I adapted the method find_cars from Udacity's lecture and changed function arguments to set the final parameters. I didn't change the window size(64x64) of the code from the original method find_cars and explored several scale values. Finally I found that the value 1.4 for the scale value was best for the test images but there were several false positive exampls.
 
-![alt text][image3]
 
 #### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+Ultimately I searched on many scales using LUV 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
 
-![alt text][image4]
----
+![alt text][sliding_1]
+![alt text][sliding_2]
+![alt text][sliding_3]
+![alt text][sliding_4]
+![alt text][sliding_5]
+![alt text][sliding_6]
 
 ### Video Implementation
 
